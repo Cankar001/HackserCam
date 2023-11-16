@@ -107,7 +107,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
             preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
             cv.imshow('input', preview)
-            key = cv.waitKey(1500)
+            key = cv.waitKey(500)
             if key == ord('q') or key == 27: # 27 = ESCAPE
                 break
 
