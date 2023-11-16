@@ -2,7 +2,7 @@ import click
 import cv2 as cv
 from pathlib import Path
 
-from .utils import logger as log
+from utils import logger as log
 
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
@@ -10,9 +10,8 @@ def load_image(path: Path) -> cv.typing.MatLike:
     return img
 
 @click.command()
-# @click.option("--analyzer", help="the analyzer to use")
-@click.argument("analyzer", type=str)
-@click.argument("img_path", type=click.Path(exists=True))
+@click.option("--analyzer", help="the analyzer to use (dev only)")
+@click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
 def main(analyzer: str, img_path: click.Path):
     click.echo(f"analyzing file: {img_path} \nwith analyzer: {analyzer}")
 
