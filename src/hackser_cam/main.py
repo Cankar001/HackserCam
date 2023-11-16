@@ -9,6 +9,7 @@ from .utils import logger as log
 from .analyzers.edge_detection import edge_detector
 from .analyzers.greyscale_detection import greyscale_detector
 from .analyzers.color_spectrum import color_spectrum
+from .analyzers.contrast_analyzer import contrast_analyzer
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
     assert img is not None, "file could not be read"
@@ -32,6 +33,7 @@ def main(analyzer: str, img_path: click.Path):
         log.info('Running color spectrum analysis...')
         detector = color_spectrum()
     elif analyzer == 'contrast_analyzer':
+        detector = contrast_analyzer;
         log.info('Running contrast analysis...')
     else:
         log.error('unknown analyzer. Stop.')
