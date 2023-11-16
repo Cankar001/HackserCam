@@ -1,0 +1,30 @@
+[project]
+name = "hackser_cam"
+version = "0.0.1"
+description = "camera lens dirt detection"
+authors = [
+  { name = "Can Karka", email = "can.karka@example.com" },
+  { name = "Johannes Herchen", email = "jherchen@pm.me" }
+]
+
+requires-python = ">=3.12"
+
+# poetry
+[tool.poetry]
+name = "hackser_cam"
+version = "0.0.1"
+description = "camera lens dirt detection"
+authors = [
+  "Can Karka <can.karka@example.com>",
+  "Johannes Herchen <jherchen@pm.me>"
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+colorama = "^0.4.6"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
