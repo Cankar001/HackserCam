@@ -8,6 +8,8 @@ from .utils import logger as log
 
 from .analyzers.edge_detection import edge_detector
 from .analyzers.greyscale_detection import greyscale_detector
+from .analyzers.contrast_analyzer import contrast_analyzer
+
 
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
@@ -30,7 +32,8 @@ def main(analyzer: str, img_path: click.Path):
         detector = edge_detector()
     elif analyzer == 'color_spectrum':
         log.info('Running color spectrum analysis...')
-    elif analyzer == 'contrast_analyzer':
+    elif analyzer == 'contrast_analyzer.py':
+        detector = contrast_analyzer;
         log.info('Running contrast analysis...')
     else:
         log.error('unknown analyzer. Stop.')
