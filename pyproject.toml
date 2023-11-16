@@ -19,6 +19,9 @@ authors = [
   "Johannes Herchen <jherchen@pm.me>"
 ]
 
+[tool.poetry.scripts]
+main = "hackser_cam.main"
+
 [tool.poetry.dependencies]
 python = "^3.12"
 
