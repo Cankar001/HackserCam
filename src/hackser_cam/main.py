@@ -32,7 +32,7 @@ def main(analyzer: str, img_path: click.Path):
         detector = edge_detector()
     elif analyzer == 'color_spectrum':
         log.info('Running color spectrum analysis...')
-    elif analyzer == 'contrast_analyzer.py':
+    elif analyzer == 'contrast_analyzer':
         detector = contrast_analyzer;
         log.info('Running contrast analysis...')
     else:
