@@ -21,4 +21,5 @@
 ```
 
 ## dependencies
+- click
 - colorama
