@@ -7,7 +7,7 @@
 ```
 - run
 ```sh
-  poetry run cam <analyzer> <image path>
+  poetry run cam --analyzer <analyzer> --img-path <image path>
 ```
 
 ## build from source
