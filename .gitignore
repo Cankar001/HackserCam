@@ -179,4 +179,8 @@ pyrightconfig.json
 # Pycharm
 .idea
 
+# Test data folder
+test_data/*
+!test_data/.gitkeep
+
 # End of https://www.toptal.com/developers/gitignore/api/python
