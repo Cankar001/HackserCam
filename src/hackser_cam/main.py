@@ -19,10 +19,19 @@ def load_image(path: Path) -> cv.typing.MatLike:
 @click.command()
 @click.option("--analyzer", help="the analyzer to use (dev only)")
 @click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
-def main(analyzer: str, img_path: click.Path):
+@click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
+def main(analyzer: str, img_path: click.Path, cropped: str):
 
     img = cv.imread(img_path)
     detector = None
+
+    if cropped is not None:
+        tmp = cropped.split('x')
+        crop_x = int(tmp[0])
+        crop_y = int(tmp[1])
+        width = img.shape[0]
+        height = img.shape[1]
+        img = img[crop_y:height - crop_y, crop_x:width - crop_x]
 
     if analyzer == 'greyscale_detection':
         log.info('Running greyscale_detection analysis...')
