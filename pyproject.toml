@@ -20,11 +20,12 @@ authors = [
 ]
 
 [tool.poetry.scripts]
-main = "hackser_cam.main"
+cam = "hackser_cam.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.12"
 opencv-python = "^4.8.1.78"
+click = "^8.1.7"
 
 [tool.poetry.group.dev.dependencies]
 colorama = "^0.4.6"
