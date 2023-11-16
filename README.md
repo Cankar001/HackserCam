@@ -1,1 +1,5 @@
 # HackserCam
+
+## Dependencies
+
+- colorama
