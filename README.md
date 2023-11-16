@@ -5,9 +5,9 @@
 ```sh
   poetry install
 ```
-- run main file
+- run
 ```sh
-  poetry run python src/hackser_cam/main.py
+  poetry run cam <analyzer> <image path>
 ```
 
 ## build from source
