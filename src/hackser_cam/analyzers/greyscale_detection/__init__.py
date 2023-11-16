@@ -1,0 +1,1 @@
+from .greyscale_detection import greyscale_detector

@@ -3,9 +3,11 @@ import cv2 as cv
 import sys
 from pathlib import Path
 
+from src.hackser_cam.analyzers.greyscale_detection.greyscale_detection import greyscale_detector
 from .utils import logger as log
 
 from .analyzers.edge_detection import edge_detector
+from .analyzers.greyscale_detection import greyscale_detector
 
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
@@ -20,12 +22,13 @@ def main(analyzer: str, img_path: click.Path):
     img = cv.imread(img_path)
     detector = None
 
-    if analyzer == 'greyscale':
-        log.info('Running greyscale analysis...')
+    if analyzer == 'greyscale_detection':
+        log.info('Running greyscale_detection analysis...')
+        detector = greyscale_detector()
     elif analyzer == 'edge_detection':
         log.info('Running edge detection analysis...')
         detector = edge_detector()
-    elif analyzer == 'color_spect)rum':
+    elif analyzer == 'color_spectrum':
         log.info('Running color spectrum analysis...')
     elif analyzer == 'contrast_analyzer':
         log.info('Running contrast analysis...')
