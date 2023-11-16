@@ -3,15 +3,17 @@ import diplib as dip
 import numpy as np
 
 from .. import analyzer
+from hackser_cam.utils import logger
 
 class edge_detector(analyzer):
     def __init__(self, initial_img):
         self.edges = None
         self.filtered_edges = None
-        self.apply_filter = True
-        self.threshold = 10
+        self.apply_filter = False
+
         self.initial_edges_count = self.count_edges(initial_img)
         print(f'Initial edges: {self.initial_edges_count}')
+        self.make_range()
 
     def convert_to_numpy_arr(self, obj):
         edges_np = np.array(obj)
@@ -40,12 +42,22 @@ class edge_detector(analyzer):
         contours, _ = cv.findContours(self.filtered_edges, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
         return len(contours)
 
+    def make_range(self):
+        self.m = -1 / self.initial_edges_count
+        self.b = -self.m * self.initial_edges_count
+
     def run(self, img) -> float:
         number_of_edges = self.count_edges(img)
-        
-        print(f'COUNT: {number_of_edges}')
+        #print(f'COUNT: {number_of_edges}')
 
-        return 0.0
+        if number_of_edges > self.initial_edges_count:
+            self.make_range()
+
+        ranged_value = self.m * number_of_edges + self.b
+        if ranged_value < 0:
+            logger.error(f'Number of edges: {number_of_edges}, initial edges: {self.initial_edges_count}')
+
+        return ranged_value
     
     def update(self):
         if self.apply_filter:
