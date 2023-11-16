@@ -29,9 +29,8 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
         tmp = cropped.split('x')
         crop_x = int(tmp[0])
         crop_y = int(tmp[1])
-        width = img.shape[0]
-        height = img.shape[1]
-        img = img[crop_y:height - crop_y, crop_x:width - crop_x]
+
+        img = img[crop_y:len(img), crop_x:len(img[0])-crop_x]
 
     if analyzer == 'greyscale_detection':
         log.info('Running greyscale_detection analysis...')
@@ -54,7 +53,8 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
     while 1:
         detector.update()
-        cv.imshow('input', img)
+        preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
+        cv.imshow('input', preview)
         key = cv.waitKey(0)
         if key == ord('q') or key == 27: # 27 = ESCAPE
             break
