@@ -5,3 +5,6 @@ class analyzer:
     
     def run(self, img) -> float:
         return 0.0
+    
+    def update(self):
+        pass
