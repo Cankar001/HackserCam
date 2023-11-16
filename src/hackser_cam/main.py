@@ -57,10 +57,10 @@ def get_all_images_of_directory(file_path: str) -> list:
 @click.option("--analyzer", help="the analyzer to use (dev only)")
 @click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
 @click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
-@click.option("--single-shot", is_flag=True, help="Takes in a single file path as input image instead of a folder (dev only)")
-def main(analyzer: str, img_path: click.Path, cropped: str, single_shot: bool):
+def main(analyzer: str, img_path: click.Path, cropped: str):
 
-    if single_shot:
+    # first check if img_path is a folder or a file
+    if os.path.isfile(img_path):
         # We take in a single image path and 
         # apply the analysis a single time on a single image.
         img = cv.imread(img_path)
