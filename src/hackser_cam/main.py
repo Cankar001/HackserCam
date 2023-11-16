@@ -18,7 +18,7 @@ def load_image(path: Path) -> cv.typing.MatLike:
     assert img is not None, "file could not be read"
     return img
 
-def create_analyzer(analyzer: str) -> analyzer:
+def create_analyzer(analyzer: str, initial_img) -> analyzer:
     detector = None
 
     if analyzer == 'greyscale_detection':
@@ -26,7 +26,7 @@ def create_analyzer(analyzer: str) -> analyzer:
         detector = greyscale_detector()
     elif analyzer == 'edge_detection':
         log.info('Running edge detection analysis...')
-        detector = edge_detector()
+        detector = edge_detector(initial_img)
     elif analyzer == 'color_spectrum':
         log.info('Running color spectrum analysis...')
         detector = color_spectrum()
@@ -59,6 +59,8 @@ def get_all_images_of_directory(file_path: str) -> list:
 @click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
 def main(analyzer: str, img_path: click.Path, cropped: str):
 
+    initial_img = cv.imread('./test_data/initial_image.jpg')
+
     # first check if img_path is a folder or a file
     if os.path.isfile(img_path):
         # We take in a single image path and 
@@ -71,7 +73,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             crop_y = int(tmp[1])
             img = img[crop_y:len(img), crop_x:len(img[0])-crop_x]
 
-        detector = create_analyzer(analyzer)
+        detector = create_analyzer(analyzer, initial_img)
         fuzzy_value = detector.run(img)
         log.info(f'Fuzzy value: {fuzzy_value}')
 
@@ -89,7 +91,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
         image_paths = get_all_images_of_directory(img_path)
         
         # TODO: later we should create all analyzers and run the analysis foreach analyzer.
-        detector = create_analyzer(analyzer)
+        detector = create_analyzer(analyzer, initial_img)
 
         for image in image_paths:
             img = cv.imread(image)
