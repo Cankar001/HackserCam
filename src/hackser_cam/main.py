@@ -88,8 +88,12 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
         # We take in a folder and apply the analysis foreach image in the directory
         image_paths = get_all_images_of_directory(img_path)
         
-        # TODO: later we should create all analyzers and run the analysis foreach analyzer.
-        detector = create_analyzer(analyzer)
+        detectors = [
+            greyscale_detector(),
+            edge_detector(),
+            color_spectrum(),
+            contrast_analyzer()
+        ]
 
         for image in image_paths:
             img = cv.imread(image)
@@ -101,10 +105,20 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 crop_y = int(tmp[1])
                 img = img[crop_y:len(img), crop_x:len(img[0])-crop_x]
 
-            fuzzy_value = detector.run(img)
-            log.info(f'Fuzzy value: {fuzzy_value}')
-            detector.update()
+            fuzzies = []
+            for detector in detectors:
+                fuzzy_value = detector.run(img)
+                log.info(f'Fuzzy value: {fuzzy_value}')
+                detector.update()
+                fuzzies.append(fuzzy_value)
 
+            multiplied_fuzzy = 1
+            for fuzzy in fuzzies:
+                multiplied_fuzzy = multiplied_fuzzy * fuzzy
+
+            final_fuzzy = multiplied_fuzzy ** (1 / len(fuzzies))
+            log.success(f'Final fuzzy: {final_fuzzy}')
+            
             preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
             cv.imshow('input', preview)
             key = cv.waitKey(1500)
