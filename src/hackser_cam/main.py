@@ -10,6 +10,7 @@ from .analyzers.edge_detection import edge_detector
 from .analyzers.greyscale_detection import greyscale_detector
 from .analyzers.color_spectrum import color_spectrum
 from .analyzers.contrast_analyzer import contrast_analyzer
+
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
     assert img is not None, "file could not be read"
