@@ -51,9 +51,6 @@ class edge_detector(analyzer):
         number_of_edges = self.count_edges(img)
         #print(f'COUNT: {number_of_edges}')
 
-        if number_of_edges < self.threshold:
-            return -1
-
         if number_of_edges > self.initial_edges_count:
             self.make_range()
 
