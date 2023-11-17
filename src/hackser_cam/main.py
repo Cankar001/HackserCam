@@ -3,6 +3,7 @@ import cv2 as cv
 import sys
 import os
 from pathlib import Path
+from matplotlib import pyplot as plt
 
 from src.hackser_cam.analyzers.greyscale_detection.greyscale_detection import greyscale_detector
 from .utils import logger as log
@@ -87,6 +88,11 @@ def crop_image(image, cropped: str):
     cropped_image = image[crop_y:len(image), crop_x:len(image[0])-crop_x]
     return cropped_image
 
+def plot(toPlot):
+    plt.show
+    plt.plot(toPlot)
+    plt.pause(0.01)
+
 @click.command()
 @click.option("--analyzer", help="the analyzer to use (dev only)")
 @click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
@@ -95,6 +101,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
     # how many pictures are taken at once.
     bulk_image_count = 15
+    fuzzyValues = []  # All fuzzy values are stored here for plotting
     
     if not os.path.exists('./test_data/initial_image.jpg'):
         log.error('Error: initial image not found. Check readme. Stop.')
@@ -199,7 +206,9 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 if fuzzy < min_fuzzy:
                     min_fuzzy = fuzzy
             print("Image Groupe No:",len(fuzzies),"End Fuzzie",min_fuzzy)
+            fuzzyValues.append([min_fuzzy])
             log.success(f'Final fuzzy: {min_fuzzy}')
+            plot(fuzzyValues)
 
     cv.destroyAllWindows()
 
