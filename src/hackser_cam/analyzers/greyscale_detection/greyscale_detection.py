@@ -40,8 +40,9 @@ class greyscale_detector(analyzer):
 
     runCount = 0
 
-    def __init__(self):
+    def __init__(self, img):
         print()
+        self.generateReference(img)
         plt.ion()
         plt.xlim([0, 256])
         plt.show()
@@ -69,7 +70,8 @@ class greyscale_detector(analyzer):
         self.runCount += 1
 
     def run(self, img) -> float:
-        if self.referenceOverall == 0: self.generateReference(img); return 0.0
+        plt.clf()
+        #if self.referenceOverall == 0: self.generateReference(img); return 0.0
         greyscaleimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         numPixels = 0
         pixelSum = 0
