@@ -3,6 +3,10 @@ import cv2 as cv
 import sys
 import os
 from pathlib import Path
+import threading
+
+from . import shared_resource
+from .flask_frontend import app
 
 from src.hackser_cam.analyzers.greyscale_detection.greyscale_detection import greyscale_detector
 from .utils import logger as log
@@ -87,11 +91,17 @@ def crop_image(image, cropped: str):
     cropped_image = image[crop_y:len(image), crop_x:len(image[0])-crop_x]
     return cropped_image
 
+def start_frontend():
+     app.run(debug=True, use_reloader=False, threaded=True)
+
 @click.command()
 @click.option("--analyzer", help="the analyzer to use (dev only)")
 @click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
 @click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
 def main(analyzer: str, img_path: click.Path, cropped: str):
+
+    flask_thread = threading.Thread(target=start_frontend)
+    flask_thread.start()
 
     # how many pictures are taken at once.
     bulk_image_count = 15
@@ -132,7 +142,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
         #print_image_split(image_groups, bulk_image_count)
 
         detectors = [
-            greyscale_detector(),
+            greyscale_detector(initial_img),
             edge_detector(initial_img),
             #color_spectrum(),
             #contrast_analyzer()
@@ -155,6 +165,11 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                     detector.update()
                     detector_fuzzies.append(fuzzy_value)
 
+                    with shared_resource.data_lock:
+                        log.error(f'fuz: {fuzzy_value}')
+                        shared_resource.global_fuzzies.append(fuzzy_value)
+
+
                 # calculate average value of the detectors
                 average_fuzzy = 0
                 for fuzzy in detector_fuzzies:
@@ -172,6 +187,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 # exit, if key press
                 if key == ord('q') or key == 27: # 27 = ESCAPE
                     cv.destroyAllWindows()
+                    flask_thread.join()
                     sys.exit(0)
             
             # get the min value of the fuzzie value of the whole bulk_image_count
@@ -183,6 +199,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             log.success(f'Final fuzzy: {min_fuzzy}')
 
     cv.destroyAllWindows()
+    flask_thread.join()
 
 
 if __name__ == '__main__':

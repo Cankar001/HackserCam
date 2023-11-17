@@ -112,6 +112,7 @@ class greyscale_detector(analyzer):
 
         func = peakFuzzyInit(self.highestPeak, self.lowestPeak)
         fuzzyval = func[0]*peak[1]+func[1]
+        fuzzyval = fuzzyval[0] # TODO: WHYYYYY
 
         func = peakFuzzyInit(self.leftestPeak, self.rightestPeak)
         fuzzyval2 = func[0]*peak[0]+func[1]
