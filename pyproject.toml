@@ -7,7 +7,7 @@ authors = [
   { name = "Johannes Herchen", email = "jherchen@pm.me" }
 ]
 
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 
 # poetry
 [tool.poetry]
@@ -23,11 +23,12 @@ authors = [
 cam = "hackser_cam.main:main"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.13"
 opencv-python = "^4.8.1.78"
 click = "^8.1.7"
 diplib = "^3.4.1"
 matplotlib = "^3.8.1"
+imutils = "^0.5.4"
 
 [tool.poetry.group.dev.dependencies]
 colorama = "^0.4.6"
