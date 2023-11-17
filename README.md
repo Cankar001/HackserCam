@@ -1,5 +1,9 @@
 # HackserCam
 
+## pre requirements
+
+a good picture without smoke or dirt has to be in the `test_data` folder, named `initial_image.jpg`.
+
 ## run main with poetry
 - install dependencies
 ```sh
