@@ -92,7 +92,7 @@ def crop_image(image, cropped: str):
     return cropped_image
 
 def start_frontend():
-     app.run(debug=True, use_reloader=False)
+     app.run(debug=False, use_reloader=False)
 
 @click.command()
 @click.option("--analyzer", help="the analyzer to use (dev only)")
@@ -165,10 +165,6 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                     detector.update()
                     detector_fuzzies.append(fuzzy_value)
 
-                    with shared_resource.data_lock:
-                        shared_resource.global_fuzzies.append(fuzzy_value)
-
-
                 # calculate average value of the detectors
                 average_fuzzy = 0
                 for fuzzy in detector_fuzzies:
@@ -194,6 +190,9 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             for fuzzy in fuzzies:
                 if fuzzy < min_fuzzy:
                     min_fuzzy = fuzzy
+
+            with shared_resource.data_lock:
+                shared_resource.global_fuzzies.append(min_fuzzy)
 
             log.success(f'Final fuzzy: {min_fuzzy}')
 

@@ -105,16 +105,13 @@ function create_diagram()
     return largescaleArea;
 }
 
-function update_diagram(largescaleArea, fuzzy_data)
+function update_diagram(largescaleArea, fuzzy_data, dates)
 {
-    var date = [];
     var data = [];
-    var base = + new Date();
     var option = {};
 
     for (var i = 0; i < fuzzy_data.length; i++)
     {
-        date.push(base);
         data.push(fuzzy_data[i]);
     }
 
@@ -135,7 +132,7 @@ function update_diagram(largescaleArea, fuzzy_data)
         xAxis: {
             type: 'category',
             boundaryGap: false,
-            data: date,
+            data: dates,
             axisLine:{
                 lineStyle:{
                     color: Aero.colors["gray-lightest"],
@@ -147,6 +144,8 @@ function update_diagram(largescaleArea, fuzzy_data)
         },
         yAxis: {
             type: 'value',
+            min: 0,
+            max: 1,
             boundaryGap: [0, '100%'],
             splitLine: {
                 lineStyle:{

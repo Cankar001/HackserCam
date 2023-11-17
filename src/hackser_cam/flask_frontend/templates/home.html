@@ -391,7 +391,7 @@
                     <div class="col-lg-12 col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h2>test</h2>
+                                <h2>fuzzies</h2>
                             </div>
                             <div class="body">
                                 <div class="chart" id="echart-large_scale_area" style="height: 400px;"></div>
@@ -416,6 +416,7 @@
 
     <script type="text/javascript">
         let fuzzy_data = [];
+        let dates = [];
         let diagram = create_diagram();
 
         function fetchData() {
@@ -423,6 +424,7 @@
                 .then(response => response.json())
                 .then(data => {
                     fuzzy_data.push(data.data);
+                    dates.push(new Date());
                 })
                 .catch(error => console.error('Error:', error));
         }
@@ -430,7 +432,7 @@
         // Fetch data every second (1000 milliseconds)
         setInterval(function () {
             fetchData();
-            update_diagram(diagram, fuzzy_data);
+            update_diagram(diagram, fuzzy_data, dates);
         }, 1000);
 
 
