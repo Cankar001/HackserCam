@@ -92,7 +92,7 @@ def plot(toPlot):
     plt.figure(100, figsize=(2.5,2.5))
     plt.ion()
     plt.plot(toPlot)
-    plt.show
+    plt.show()
     plt.pause(0.01)
 
 @click.command()
