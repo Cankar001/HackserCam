@@ -6,21 +6,27 @@ from .. import analyzer
 
 class FFT_analyzer(analyzer):
     def __init__(self, ref_img):
-        self.cleanest = calc_fft(ref_img)
-        peakFuzzyInit(self.cleanest, 12)
-
-
-    def run(self, img):
         self.m=0.0
         self.b=0.0
-        mean = 1.0
-        mean = calc_fft(img)
-        if mean > self.cleanest:
-            self.cleanest = mean
-            peakFuzzyInit(self.cleanest, 12)
+        self.cleanest = calc_fft(ref_img)
+        self.peakFuzzyInit(self.cleanest, 10)
+        self.high = 25
+        self.low = 5
 
-        return self.m * mean + self.b
-        #return map_fft_to_float(mean)
+    def run(self, img):
+        mean = calc_fft(img)
+        if 0 < mean < self.low:
+            self.low = mean
+        if mean > self.high:
+            self.high = mean
+        return 1 - ( (mean - self.low) / (self.high - self.low) )
+
+
+    def peakFuzzyInit(self, highestPeak, lowestPeak):
+        self.m = -1/(highestPeak-lowestPeak)
+        self.b = -self.m*highestPeak
+        #print("H-Peak:",highestPeak," L-Peak:",lowestPeak)
+        #print("M:",m," B:",b)
 
 def calc_fft(img)->float:
     size = 60
@@ -43,13 +49,5 @@ def calc_fft(img)->float:
     return mean
 
 
-def map_fft_to_float(mean, max_num=30.0, min_num=10.0):
-    mean_clamp = max(min(max_num, mean), min_num)
-    # return mean_clamp * -0.1 + 2.0
-    return 1.0 - ( ( mean_clamp - min_num ) / ( max_num - min_num ) )
-
-def peakFuzzyInit(highestPeak, lowestPeak):
-    self.m = -1/(highestPeak-lowestPeak)
-    self.b = -m*highestPeak
-    #print("H-Peak:",highestPeak," L-Peak:",lowestPeak)
-    #print("M:",m," B:",b)
+def clamp(mean, max_num=1.0, min_num=0.0):
+    return max(min(max_num, mean), min_num)
