@@ -137,6 +137,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             #color_spectrum(),
             #contrast_analyzer()
         ]
+        greysc = greyscale_detector(initial_img)
 
         for image_group in image_groups:
             fuzzies = []
@@ -150,15 +151,18 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
                 detector_fuzzies = []
                 #preprocessing
-                detector_fuzzies[0] = greyscale_detector.run(img)
+
+                detector_fuzzies.append(greysc.run(img))
+                greysc.update()
 
                 #in greyscale are two detectors analysing different aspects of the histogram
                 #detetor_[1] to weight these two equally in tne Average
-                detector_fuzzies[1] = detector_fuzzies[0]
+                detector_fuzzies.append(detector_fuzzies[0])
+                log.info(f'Fuzzy value: {detector_fuzzies[0]}')
 
                 #Pipelining the other Analysers
                 #only when no anomalies in the Picture
-                if detector_fuzzies[0]!=-1:
+                if detector_fuzzies[0] != -1:
                     # run through every registered detector
                     for detector in detectors:
                         fuzzy_value = detector.run(img)
@@ -178,6 +182,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                     #when an anomaly is int the picture we set the fuzzy value to get filtered by the Min
                     fuzzies.append(1.0)
 
+
                 # render preview window
                 preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
                 cv.imshow('input', preview)
@@ -193,7 +198,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             for fuzzy in fuzzies:
                 if fuzzy < min_fuzzy:
                     min_fuzzy = fuzzy
-
+            print("Image Groupe No:",len(fuzzies),"End Fuzzie",min_fuzzy)
             log.success(f'Final fuzzy: {min_fuzzy}')
 
     cv.destroyAllWindows()
