@@ -11,6 +11,7 @@ class edge_detector(analyzer):
         self.filtered_edges = None
         self.apply_filter = False
 
+        self.threshold = 5
         self.initial_edges_count = self.count_edges(initial_img)
         print(f'Initial edges: {self.initial_edges_count}')
         self.make_range()
@@ -49,6 +50,9 @@ class edge_detector(analyzer):
     def run(self, img) -> float:
         number_of_edges = self.count_edges(img)
         #print(f'COUNT: {number_of_edges}')
+
+        if number_of_edges < self.threshold:
+            return -1
 
         if number_of_edges > self.initial_edges_count:
             self.make_range()
