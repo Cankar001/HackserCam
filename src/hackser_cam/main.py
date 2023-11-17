@@ -203,6 +203,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 # exit, if key press
                 if key == ord('q') or key == 27: # 27 = ESCAPE
                     cv.destroyAllWindows()
+                    plt.close('all')
                     flask_thread.join()
                     sys.exit(0)
             
@@ -220,6 +221,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             plot(fuzzyValues)
 
     cv.destroyAllWindows()
+    plt.close('all')
     flask_thread.join()
 
 
