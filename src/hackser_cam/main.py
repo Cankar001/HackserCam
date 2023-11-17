@@ -128,9 +128,9 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
 
         detector = create_analyzer(analyzer, initial_img)
         fuzzy_value = detector.run(img)
-        log.info(f'Fuzzy value: {fuzzy_value}')
+        log.info(f'img: {img_path} -> Fuzzy value: {fuzzy_value}')
 
-        while 1:
+        while 1 and show:
             detector.update()
             preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
             cv.imshow('input', preview)
@@ -172,7 +172,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
                 #in greyscale are two detectors analysing different aspects of the histogram
                 #detetor_[1] to weight these two equally in tne Average
                 detector_fuzzies.append(detector_fuzzies[0])
-                log.info(f'Fuzzy value: {detector_fuzzies[0]}')
+                log.info(f'img: {img_path} -> Fuzzy value: {detector_fuzzies[0]}')
 
                 #Pipelining the other Analysers
                 #only when no anomalies in the Picture

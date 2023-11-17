@@ -7,7 +7,7 @@ from .. import analyzer
 class FFT_analyzer(analyzer):
     def run(self, img):
         size = 60
-        threshold = 20
+        threshold = 15
 
         img = imutils.resize(img, width=500)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -25,4 +25,9 @@ class FFT_analyzer(analyzer):
         spectrum = 20 * np.log(np.abs(ifft))
         mean = np.mean(spectrum)
 
-        return mean
+        return map_fft_to_float(mean)
+
+def map_fft_to_float(mean, max_num=30.0, min_num=10.0):
+    mean_clamp = max(min(max_num, mean), min_num)
+    # return mean_clamp * -0.1 + 2.0
+    return 1.0 - ( ( mean_clamp - min_num ) / ( max_num - min_num ) )
