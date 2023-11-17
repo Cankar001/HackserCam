@@ -4,8 +4,11 @@ import sys
 import os
 from pathlib import Path
 from matplotlib import pyplot as plt
+import threading
 
-from src.hackser_cam.analyzers.greyscale_detection.greyscale_detection import greyscale_detector
+from . import shared_resource
+from .flask_frontend import app
+
 from .utils import logger as log
 
 from .analyzers import analyzer
@@ -101,12 +104,18 @@ def plot(toPlot):
     plt.show()
     plt.pause(0.01)
 
+def start_frontend():
+     app.run(debug=False, use_reloader=False)
+
 @click.command()
 @click.option("--analyzer", help="the analyzer to use (dev only)")
 @click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
 @click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
 @click.option("--show", help="show image while processing", is_flag=True)
 def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
+
+    #flask_thread = threading.Thread(target=start_frontend)
+    #flask_thread.start()
 
     # how many pictures are taken at once.
     bulk_image_count = 15
@@ -166,19 +175,16 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
 
 
                 detector_fuzzies = []
-                #preprocessing
 
-                detector_fuzzies.append(greysc.run(img))
+                # preprocessing
+                greyscale_fuzzy = greysc.run(img)
+                detector_fuzzies.append(greyscale_fuzzy)
                 greysc.update()
+                log.info(f'img: {img_path} -> grayscale Fuzzy value: {greyscale_fuzzy}')
 
-                #in greyscale are two detectors analysing different aspects of the histogram
-                #detetor_[1] to weight these two equally in tne Average
-                detector_fuzzies.append(detector_fuzzies[0])
-                log.info(f'img: {img_path} -> Fuzzy value: {detector_fuzzies[0]}')
-
-                #Pipelining the other Analysers
-                #only when no anomalies in the Picture
-                if detector_fuzzies[0] != -1:
+                # Pipelining the other Analysers
+                # only when no anomalies in the Picture
+                if greyscale_fuzzy != -1:
                     # run through every registered detector
                     for detector in detectors:
                         fuzzy_value = detector.run(img)
@@ -191,23 +197,22 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
                     for fuzzy in detector_fuzzies:
                         average_fuzzy = average_fuzzy + fuzzy
 
-
                     detector_fuzzy = average_fuzzy /len(detector_fuzzies)
                     fuzzies.append(detector_fuzzy)
                 else:
                     #when an anomaly is int the picture we set the fuzzy value to get filtered by the Min
                     fuzzies.append(1.0)
 
-
                 # render preview window
                 preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
                 cv.imshow('input', preview)
-                key = cv.waitKey(500)
+                key = cv.waitKey(200)
                 
                 # exit, if key press
                 if key == ord('q') or key == 27: # 27 = ESCAPE
                     cv.destroyAllWindows()
                     plt.close('all')
+                    #flask_thread.join()
                     sys.exit(0)
             
             # get the min value of the fuzzie value of the whole bulk_image_count
@@ -215,13 +220,17 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
             for fuzzy in fuzzies:
                 if fuzzy < min_fuzzy:
                     min_fuzzy = fuzzy
-            print("Image Groupe No:",len(fuzzies),"End Fuzzie",min_fuzzy)
+
             fuzzyValues.append([min_fuzzy])
+            with shared_resource.data_lock:
+                shared_resource.global_fuzzies.append(min_fuzzy)
+
             log.success(f'Final fuzzy: {min_fuzzy}')
             plot(fuzzyValues)
 
     cv.destroyAllWindows()
     plt.close('all')
+    #flask_thread.join()
 
 
 if __name__ == '__main__':
