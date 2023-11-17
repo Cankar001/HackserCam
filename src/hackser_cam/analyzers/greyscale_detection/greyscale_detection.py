@@ -83,7 +83,7 @@ class greyscale_detector(analyzer):
         peak = findPeakIndex(hist)
         if peak[1] > 28000: print("WRONG DATA"); return -1
 
-        peak = findPeakIndex(hist[0:140])
+        peak = findPeakIndex(hist[0:130])
 
         correctionMargin = 0.40
         if peak[1] > self.highestPeak:
@@ -116,7 +116,9 @@ class greyscale_detector(analyzer):
         print("high-fuzzy:",fuzzyval)
         print("side-fuzzy:",fuzzyval2)
 
-        return midfuzzy
+        if midfuzzy > 1: return 1
+        elif midfuzzy < 0: return 0
+        else: return midfuzzy
 
     def update(self):
         plt.figure(200, figsize=(2.5,2.5))
