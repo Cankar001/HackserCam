@@ -41,6 +41,7 @@ class greyscale_detector(analyzer):
     lastImg = None
 
     def __init__(self, img):
+        self.generateReference(img)
         print()
 
     def generateReference(self, img):  # Used to generate a reference value for testing
