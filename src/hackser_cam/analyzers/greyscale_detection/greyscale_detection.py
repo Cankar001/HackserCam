@@ -83,7 +83,7 @@ class greyscale_detector(analyzer):
         peak = findPeakIndex(hist)
         if peak[1] > 28000: print("WRONG DATA"); return -1
 
-        peak = findPeakIndex[0:140]
+        peak = findPeakIndex(hist[0:140])
 
         correctionMargin = 0.40
         if peak[1] > self.highestPeak:
