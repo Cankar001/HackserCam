@@ -13,7 +13,6 @@ from .analyzers.edge_detection import edge_detector
 from .analyzers.greyscale_detection import greyscale_detector
 from .analyzers.color_spectrum import color_spectrum
 from .analyzers.contrast_analyzer import contrast_analyzer
-from .analyzers.laplace import laplace_analyzer
 from .analyzers.fft import FFT_analyzer
 
 def load_image(path: Path) -> cv.typing.MatLike:
