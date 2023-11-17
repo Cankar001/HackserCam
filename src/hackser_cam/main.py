@@ -4,6 +4,7 @@ import sys
 import os
 from pathlib import Path
 from matplotlib import pyplot as plt
+import numpy as np
 import threading
 
 from . import shared_resource
@@ -40,7 +41,7 @@ def create_analyzer(analyzer: str, initial_img) -> analyzer:
         detector = contrast_analyzer()
         log.info('Running contrast analysis...')
     elif analyzer == "fft":
-        detector = FFT_analyzer()
+        detector = FFT_analyzer(initial_img)
     elif analyzer == "ml":
         detector = ml_analyzer()
     else:
@@ -160,7 +161,9 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
             #greyscale_detector(), is already in the Preprocessing
             edge_detector(initial_img),
             #color_spectrum(),
-            #contrast_analyzer()
+            #contrast_analyzer(),
+            FFT_analyzer(initial_img),
+            ml_analyzer()
         ]
         greysc = greyscale_detector(initial_img)
 
@@ -205,6 +208,10 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
 
                 # render preview window
                 preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
+                # for (i,val) in enumerate(fuzzies):
+                #     cv.putText(preview, f"#{i}: {val}", (10*i,10), cv.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2, cv.LINE_AA)
+                mean = np.mean(np.array(fuzzies))
+                cv.putText(preview, f"all: {mean}", (30,30), cv.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2, cv.LINE_AA)
                 cv.imshow('input', preview)
                 key = cv.waitKey(200)
                 
