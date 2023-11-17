@@ -200,6 +200,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 # exit, if key press
                 if key == ord('q') or key == 27: # 27 = ESCAPE
                     cv.destroyAllWindows()
+                    plt.close('all')
                     sys.exit(0)
             
             # get the min value of the fuzzie value of the whole bulk_image_count
@@ -213,6 +214,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             plot(fuzzyValues)
 
     cv.destroyAllWindows()
+    plt.close('all')
 
 
 if __name__ == '__main__':
