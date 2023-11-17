@@ -107,8 +107,8 @@ def start_frontend():
 @click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
 def main(analyzer: str, img_path: click.Path, cropped: str):
 
-    flask_thread = threading.Thread(target=start_frontend)
-    flask_thread.start()
+    #flask_thread = threading.Thread(target=start_frontend)
+    #flask_thread.start()
 
     # how many pictures are taken at once.
     bulk_image_count = 15
@@ -205,7 +205,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 if key == ord('q') or key == 27: # 27 = ESCAPE
                     cv.destroyAllWindows()
                     plt.close('all')
-                    flask_thread.join()
+                    #flask_thread.join()
                     sys.exit(0)
             
             # get the min value of the fuzzie value of the whole bulk_image_count
@@ -223,7 +223,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
     cv.destroyAllWindows()
     plt.close('all')
-    flask_thread.join()
+    #flask_thread.join()
 
 
 if __name__ == '__main__':
