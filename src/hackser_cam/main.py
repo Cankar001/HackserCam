@@ -132,7 +132,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
         #print_image_split(image_groups, bulk_image_count)
 
         detectors = [
-            greyscale_detector(),
+            greyscale_detector(initial_img),
             edge_detector(initial_img),
             #color_spectrum(),
             #contrast_analyzer()
