@@ -97,10 +97,11 @@ def crop_image(image, cropped: str):
     cropped_image = image[crop_y:len(image), crop_x:len(image[0])-crop_x]
     return cropped_image
 
-def plot(toPlot):
+def plot(toPlot, smthToPlot):
     plt.figure(100, figsize=(2.5,2.5))
     plt.ion()
     plt.plot(toPlot)
+    plt.plot(smthToPlot)
     plt.show()
     plt.pause(0.01)
 
@@ -120,6 +121,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
     # how many pictures are taken at once.
     bulk_image_count = 15
     fuzzyValues = []  # All fuzzy values are stored here for plotting
+    fuzzyValuesSmooth = [] # Smoothened out fuzzy values
     
     if not os.path.exists('./test_data/initial_image.jpg'):
         log.error('Error: initial image not found. Check readme. Stop.')
@@ -223,10 +225,13 @@ def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
 
             fuzzyValues.append([min_fuzzy])
             with shared_resource.data_lock:
-                shared_resource.global_fuzzies.append(min_fuzzy)
-
+            	shared_resource.global_fuzzies.append(min_fuzzy)
+            if len(fuzzyValues) % 4 == 0:
+                foursum = 0
+                for i in range(len(fuzzyValues)-4, len(fuzzyValues)-1): foursum += fuzzyValues[i][0]
+                fuzzyValuesSmooth.append([foursum/4])
             log.success(f'Final fuzzy: {min_fuzzy}')
-            plot(fuzzyValues)
+            plot(fuzzyValues, fuzzyValuesSmooth)
 
     cv.destroyAllWindows()
     plt.close('all')
