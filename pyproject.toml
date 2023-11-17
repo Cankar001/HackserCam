@@ -27,6 +27,7 @@ python = "^3.12"
 opencv-python = "^4.8.1.78"
 click = "^8.1.7"
 diplib = "^3.4.1"
+matplotlib = "^3.8.1"
 
 [tool.poetry.group.dev.dependencies]
 colorama = "^0.4.6"
