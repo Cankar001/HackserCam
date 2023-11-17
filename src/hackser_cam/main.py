@@ -155,13 +155,14 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                     detector.update()
                     detector_fuzzies.append(fuzzy_value)
 
-                    # calculate average value of the detectors
-                    multiplied_fuzzy = 1
-                    for fuzzy in detector_fuzzies:
-                        multiplied_fuzzy = multiplied_fuzzy * fuzzy
+                # calculate average value of the detectors
+                average_fuzzy = 0
+                for fuzzy in detector_fuzzies:
+                    average_fuzzy = average_fuzzy + fuzzy
 
-                    detector_fuzzy = multiplied_fuzzy ** (1 / len(detector_fuzzies))
-                    fuzzies.append(detector_fuzzy)
+
+                detector_fuzzy = average_fuzzy /len(detector_fuzzies)
+                fuzzies.append(detector_fuzzy)
 
                 # render preview window
                 preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
