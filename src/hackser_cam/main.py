@@ -96,6 +96,10 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
     # how many pictures are taken at once.
     bulk_image_count = 15
     
+    if not os.path.exists('./test_data/initial_image.jpg'):
+        log.error('Error: initial image not found. Check readme. Stop.')
+        sys.exit(1)
+
     initial_img = cv.imread('./test_data/initial_image.jpg')
 
     # first check if img_path is a folder or a file
