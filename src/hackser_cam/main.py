@@ -16,6 +16,8 @@ from .analyzers.edge_detection import edge_detector
 from .analyzers.greyscale_detection import greyscale_detector
 from .analyzers.color_spectrum import color_spectrum
 from .analyzers.contrast_analyzer import contrast_analyzer
+from .analyzers.fft import FFT_analyzer
+from .analyzers.ml import ml_analyzer
 
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
@@ -27,7 +29,7 @@ def create_analyzer(analyzer: str, initial_img) -> analyzer:
 
     if analyzer == 'greyscale_detection':
         log.info('Running greyscale_detection analysis...')
-        detector = greyscale_detector()
+        detector = greyscale_detector(initial_img)
     elif analyzer == 'edge_detection':
         log.info('Running edge detection analysis...')
         detector = edge_detector(initial_img)
@@ -37,6 +39,10 @@ def create_analyzer(analyzer: str, initial_img) -> analyzer:
     elif analyzer == 'contrast_analyzer':
         detector = contrast_analyzer()
         log.info('Running contrast analysis...')
+    elif analyzer == "fft":
+        detector = FFT_analyzer()
+    elif analyzer == "ml":
+        detector = ml_analyzer()
     else:
         log.error('unknown analyzer. Stop.')
         sys.exit(1)
@@ -105,7 +111,8 @@ def start_frontend():
 @click.option("--analyzer", help="the analyzer to use (dev only)")
 @click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
 @click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
-def main(analyzer: str, img_path: click.Path, cropped: str):
+@click.option("--show", help="show image while processing", is_flag=True)
+def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
 
     #flask_thread = threading.Thread(target=start_frontend)
     #flask_thread.start()
@@ -132,9 +139,9 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
         detector = create_analyzer(analyzer, initial_img)
         fuzzy_value = detector.run(img)
-        log.info(f'Fuzzy value: {fuzzy_value}')
+        log.info(f'img: {img_path} -> Fuzzy value: {fuzzy_value}')
 
-        while 1:
+        while 1 and show:
             detector.update()
             preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
             cv.imshow('input', preview)
@@ -173,7 +180,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 greyscale_fuzzy = greysc.run(img)
                 detector_fuzzies.append(greyscale_fuzzy)
                 greysc.update()
-                log.info(f'greyscale Fuzzy value: {greyscale_fuzzy}')
+                log.info(f'img: {img_path} -> grayscale Fuzzy value: {greyscale_fuzzy}')
 
                 # Pipelining the other Analysers
                 # only when no anomalies in the Picture
