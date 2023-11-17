@@ -4,8 +4,11 @@ import sys
 import os
 from pathlib import Path
 from matplotlib import pyplot as plt
+import threading
 
-from src.hackser_cam.analyzers.greyscale_detection.greyscale_detection import greyscale_detector
+from . import shared_resource
+from .flask_frontend import app
+
 from .utils import logger as log
 
 from .analyzers import analyzer
@@ -13,6 +16,8 @@ from .analyzers.edge_detection import edge_detector
 from .analyzers.greyscale_detection import greyscale_detector
 from .analyzers.color_spectrum import color_spectrum
 from .analyzers.contrast_analyzer import contrast_analyzer
+from .analyzers.fft import FFT_analyzer
+from .analyzers.ml import ml_analyzer
 
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
@@ -24,7 +29,7 @@ def create_analyzer(analyzer: str, initial_img) -> analyzer:
 
     if analyzer == 'greyscale_detection':
         log.info('Running greyscale_detection analysis...')
-        detector = greyscale_detector()
+        detector = greyscale_detector(initial_img)
     elif analyzer == 'edge_detection':
         log.info('Running edge detection analysis...')
         detector = edge_detector(initial_img)
@@ -34,6 +39,10 @@ def create_analyzer(analyzer: str, initial_img) -> analyzer:
     elif analyzer == 'contrast_analyzer':
         detector = contrast_analyzer()
         log.info('Running contrast analysis...')
+    elif analyzer == "fft":
+        detector = FFT_analyzer()
+    elif analyzer == "ml":
+        detector = ml_analyzer()
     else:
         log.error('unknown analyzer. Stop.')
         sys.exit(1)
@@ -96,11 +105,18 @@ def plot(toPlot, smthToPlot):
     plt.show()
     plt.pause(0.01)
 
+def start_frontend():
+     app.run(debug=False, use_reloader=False)
+
 @click.command()
 @click.option("--analyzer", help="the analyzer to use (dev only)")
 @click.option("--img-path", help="The image path (dev only)", type=click.Path(exists=True))
 @click.option("--cropped", help="Crops the image by <cropped_x>x<cropped_y> (dev only)")
-def main(analyzer: str, img_path: click.Path, cropped: str):
+@click.option("--show", help="show image while processing", is_flag=True)
+def main(analyzer: str, img_path: click.Path, cropped: str, show: bool):
+
+    #flask_thread = threading.Thread(target=start_frontend)
+    #flask_thread.start()
 
     # how many pictures are taken at once.
     bulk_image_count = 15
@@ -125,9 +141,9 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
         detector = create_analyzer(analyzer, initial_img)
         fuzzy_value = detector.run(img)
-        log.info(f'Fuzzy value: {fuzzy_value}')
+        log.info(f'img: {img_path} -> Fuzzy value: {fuzzy_value}')
 
-        while 1:
+        while 1 and show:
             detector.update()
             preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
             cv.imshow('input', preview)
@@ -161,19 +177,16 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
 
                 detector_fuzzies = []
-                #preprocessing
 
-                detector_fuzzies.append(greysc.run(img))
+                # preprocessing
+                greyscale_fuzzy = greysc.run(img)
+                detector_fuzzies.append(greyscale_fuzzy)
                 greysc.update()
+                log.info(f'img: {img_path} -> grayscale Fuzzy value: {greyscale_fuzzy}')
 
-                #in greyscale are two detectors analysing different aspects of the histogram
-                #detetor_[1] to weight these two equally in tne Average
-                detector_fuzzies.append(detector_fuzzies[0])
-                log.info(f'Fuzzy value: {detector_fuzzies[0]}')
-
-                #Pipelining the other Analysers
-                #only when no anomalies in the Picture
-                if detector_fuzzies[0] != -1:
+                # Pipelining the other Analysers
+                # only when no anomalies in the Picture
+                if greyscale_fuzzy != -1:
                     # run through every registered detector
                     for detector in detectors:
                         fuzzy_value = detector.run(img)
@@ -186,23 +199,22 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                     for fuzzy in detector_fuzzies:
                         average_fuzzy = average_fuzzy + fuzzy
 
-
                     detector_fuzzy = average_fuzzy /len(detector_fuzzies)
                     fuzzies.append(detector_fuzzy)
                 else:
                     #when an anomaly is int the picture we set the fuzzy value to get filtered by the Min
                     fuzzies.append(1.0)
 
-
                 # render preview window
                 preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
                 cv.imshow('input', preview)
-                key = cv.waitKey(500)
+                key = cv.waitKey(50)
                 
                 # exit, if key press
                 if key == ord('q') or key == 27: # 27 = ESCAPE
                     cv.destroyAllWindows()
                     plt.close('all')
+                    #flask_thread.join()
                     sys.exit(0)
             
             # get the min value of the fuzzie value of the whole bulk_image_count
@@ -210,8 +222,10 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
             for fuzzy in fuzzies:
                 if fuzzy < min_fuzzy:
                     min_fuzzy = fuzzy
-            print("Image Groupe No:",len(fuzzies),"End Fuzzie",min_fuzzy)
+
             fuzzyValues.append([min_fuzzy])
+            with shared_resource.data_lock:
+            	shared_resource.global_fuzzies.append(min_fuzzy)
             if len(fuzzyValues) % 4 == 0:
                 foursum = 0
                 for i in range(len(fuzzyValues)-4, len(fuzzyValues)-1): foursum += fuzzyValues[i][0]
@@ -221,6 +235,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
     cv.destroyAllWindows()
     plt.close('all')
+    #flask_thread.join()
 
 
 if __name__ == '__main__':
