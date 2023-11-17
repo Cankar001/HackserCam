@@ -13,8 +13,8 @@ from .analyzers.edge_detection import edge_detector
 from .analyzers.greyscale_detection import greyscale_detector
 from .analyzers.color_spectrum import color_spectrum
 from .analyzers.contrast_analyzer import contrast_analyzer
-from .analyzers.laplace import laplace_analyzer
 from .analyzers.fft import FFT_analyzer
+from .analyzers.ml import ml_analyzer
 
 def load_image(path: Path) -> cv.typing.MatLike:
     img = cv.imread(path)
@@ -38,6 +38,8 @@ def create_analyzer(analyzer: str, initial_img) -> analyzer:
         log.info('Running contrast analysis...')
     elif analyzer == "fft":
         detector = FFT_analyzer()
+    elif analyzer == "ml":
+        detector = ml_analyzer()
     else:
         log.error('unknown analyzer. Stop.')
         sys.exit(1)
