@@ -89,8 +89,10 @@ def crop_image(image, cropped: str):
     return cropped_image
 
 def plot(toPlot):
-    plt.show
+    plt.figure(100, figsize=(2.5,2.5))
+    plt.ion()
     plt.plot(toPlot)
+    plt.show
     plt.pause(0.01)
 
 @click.command()
