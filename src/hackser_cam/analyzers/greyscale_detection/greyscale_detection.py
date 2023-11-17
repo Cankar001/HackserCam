@@ -19,8 +19,8 @@ def getPixelDistance(pix1, pix2):
 def findPeakIndex(toSearch):
     momMax = 0
     for i in range(1, len(toSearch)):
-        if toSearch[i] > toSearch[momMax]: momMax = i
-    return [momMax, toSearch[momMax]]
+        if toSearch[i][0] > toSearch[momMax][0]: momMax = i
+    return [momMax, toSearch[momMax][0]]
 
 def peakFuzzyInit(highestPeak, lowestPeak):
     m = -1/(highestPeak-lowestPeak)
@@ -38,14 +38,11 @@ class greyscale_detector(analyzer):
     leftestPeak = 0
     rightestPeak = 0
 
-    runCount = 0
+    lastImg = None
 
     def __init__(self, img):
-        print()
         self.generateReference(img)
-        plt.ion()
-        plt.xlim([0, 256])
-        plt.show()
+        print()
 
     def generateReference(self, img):  # Used to generate a reference value for testing
         cropped = img[100:len(img), 60:len(img[0]) - 60]
@@ -60,19 +57,16 @@ class greyscale_detector(analyzer):
         hist = cv.calcHist([greyscaleimg], [0], None, [256], [0, 256])
         peak = findPeakIndex(hist)
         self.highestPeak = peak[1]
-        self.leftestPeak = peak[0]
+        self.leftestPeak = 35
         self.lowestPeak = self.highestPeak*0.57
-        self.rightestPeak = self.leftestPeak*1.3
+        self.rightestPeak = 65
 
         self.referenceOverall = pixelSum/numPixels
         print("Set reference Overall to:", self.referenceOverall)
 
-        self.runCount += 1
-
     def run(self, img) -> float:
-        plt.clf()
-        #if self.referenceOverall == 0: self.generateReference(img); return 0.0
-        greyscaleimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        if self.referenceOverall == 0: self.generateReference(img); return 0.0
+        greyscaleimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY); self.lastImg = greyscaleimg
         numPixels = 0
         pixelSum = 0
 
@@ -89,15 +83,17 @@ class greyscale_detector(analyzer):
         peak = findPeakIndex(hist)
         if peak[1] > 28000: print("WRONG DATA"); return -1
 
+        peak = findPeakIndex(hist[0:130])
+
         correctionMargin = 0.40
         if peak[1] > self.highestPeak:
             if peak[1] < self.highestPeak*(1+correctionMargin):
                 self.highestPeak = peak[1]
             else: print("WRONG DATA"); return -1
-        if peak[0] > self.rightestPeak:
-            if peak[0] < self.rightestPeak*(1+correctionMargin):
-                self.rightestPeak = peak[0]
-            else: print("WRONG DATA"); return -1
+        #if peak[0] > self.rightestPeak: # Fixed rightest Peak to a set value
+        #    if peak[0] < self.rightestPeak*(1+correctionMargin):
+        #        self.rightestPeak = peak[0]
+        #    else: print("WRONG DATA"); return -1
 
         if peak[1] < self.lowestPeak:
             if peak[1] > self.lowestPeak*(1-correctionMargin):
@@ -120,12 +116,21 @@ class greyscale_detector(analyzer):
         print("high-fuzzy:",fuzzyval)
         print("side-fuzzy:",fuzzyval2)
 
-        plt.plot(hist)
-        plt.pause(0.01)
-
-        self.runCount += 1
-        return midfuzzy
+        if midfuzzy > 1: return 1
+        elif midfuzzy < 0: return 0
+        else: return midfuzzy
 
     def update(self):
-        return
+        plt.figure(200, figsize=(2.5,2.5))
+        plt.ion()
+        plt.xlim([0, 256])
+        plt.clf()
+
+        hist = cv.calcHist([self.lastImg], [0], None, [256], [0, 256])
+
+        plt.plot(hist)
+        plt.show()
+        plt.pause(0.01)
+
+
 
