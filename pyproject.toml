@@ -22,6 +22,11 @@ authors = [
 [tool.poetry.scripts]
 cam = "hackser_cam.main:main"
 
+[tool.poe.tasks]
+_sort = "isort src/"
+_black = "black src/"
+lint = [ "_sort", "_black" ]
+
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
 opencv-python = "^4.8.1.78"
@@ -36,6 +41,9 @@ flask = "^3.0.0"
 [tool.poetry.group.dev.dependencies]
 colorama = "^0.4.6"
 ipykernel = "^6.26.0"
+black = "^23.11.0"
+isort = "^5.12.0"
+poethepoet = "^0.24.3"
 
 [build-system]
 requires = ["poetry-core"]
