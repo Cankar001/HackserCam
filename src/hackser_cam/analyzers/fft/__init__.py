@@ -1,13 +1,14 @@
-import numpy as np
 import cv2
 import imutils
+import numpy as np
 
 from .. import analyzer
 
+
 class FFT_analyzer(analyzer):
     def __init__(self, ref_img):
-        self.m=0.0
-        self.b=0.0
+        self.m = 0.0
+        self.b = 0.0
         self.cleanest = calc_fft(ref_img)
         self.peakFuzzyInit(self.cleanest, 10)
         self.high = 25
@@ -19,16 +20,16 @@ class FFT_analyzer(analyzer):
             self.low = mean
         if mean > self.high:
             self.high = mean
-        return 1 - ( (mean - self.low) / (self.high - self.low) )
-
+        return 1 - ((mean - self.low) / (self.high - self.low))
 
     def peakFuzzyInit(self, highestPeak, lowestPeak):
-        self.m = -1/(highestPeak-lowestPeak)
-        self.b = -self.m*highestPeak
-        #print("H-Peak:",highestPeak," L-Peak:",lowestPeak)
-        #print("M:",m," B:",b)
+        self.m = -1 / (highestPeak - lowestPeak)
+        self.b = -self.m * highestPeak
+        # print("H-Peak:",highestPeak," L-Peak:",lowestPeak)
+        # print("M:",m," B:",b)
 
-def calc_fft(img)->float:
+
+def calc_fft(img) -> float:
     size = 60
     threshold = 15
     img = imutils.resize(img, width=500)
@@ -40,7 +41,7 @@ def calc_fft(img)->float:
     fft = np.fft.fft2(gray)
     fft_shift = np.fft.fftshift(fft)
 
-    fft_shift[center_y - size: center_y + size, center_x - size: center_x + size] = 0
+    fft_shift[center_y - size : center_y + size, center_x - size : center_x + size] = 0
     fft_shift = np.fft.ifftshift(fft_shift)
     ifft = np.fft.ifft2(fft_shift)
 

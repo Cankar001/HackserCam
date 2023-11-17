@@ -1,5 +1,7 @@
 import cv2 as cv
+
 from .. import analyzer
+
 
 class contrast_analyzer(analyzer):
     def __init__(self):
