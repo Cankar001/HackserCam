@@ -129,7 +129,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
         detectors = [
             greyscale_detector(),
-            edge_detector(),
+            edge_detector(initial_img),
             color_spectrum(),
             contrast_analyzer()
         ]
