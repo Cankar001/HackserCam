@@ -8,7 +8,6 @@ import threading
 from . import shared_resource
 from .flask_frontend import app
 
-from src.hackser_cam.analyzers.greyscale_detection.greyscale_detection import greyscale_detector
 from .utils import logger as log
 
 from .analyzers import analyzer
@@ -160,19 +159,16 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
 
                 detector_fuzzies = []
-                #preprocessing
 
-                detector_fuzzies.append(greysc.run(img))
+                # preprocessing
+                greyscale_fuzzy = greysc.run(img)
+                detector_fuzzies.append(greyscale_fuzzy)
                 greysc.update()
+                log.info(f'greyscale Fuzzy value: {greyscale_fuzzy}')
 
-                #in greyscale are two detectors analysing different aspects of the histogram
-                #detetor_[1] to weight these two equally in tne Average
-                detector_fuzzies.append(detector_fuzzies[0])
-                log.info(f'Fuzzy value: {detector_fuzzies[0]}')
-
-                #Pipelining the other Analysers
-                #only when no anomalies in the Picture
-                if detector_fuzzies[0] != -1:
+                # Pipelining the other Analysers
+                # only when no anomalies in the Picture
+                if greyscale_fuzzy != -1:
                     # run through every registered detector
                     for detector in detectors:
                         fuzzy_value = detector.run(img)
@@ -185,18 +181,16 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                     for fuzzy in detector_fuzzies:
                         average_fuzzy = average_fuzzy + fuzzy
 
-
                     detector_fuzzy = average_fuzzy /len(detector_fuzzies)
                     fuzzies.append(detector_fuzzy)
                 else:
                     #when an anomaly is int the picture we set the fuzzy value to get filtered by the Min
                     fuzzies.append(1.0)
 
-
                 # render preview window
                 preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)
                 cv.imshow('input', preview)
-                key = cv.waitKey(500)
+                key = cv.waitKey(200)
                 
                 # exit, if key press
                 if key == ord('q') or key == 27: # 27 = ESCAPE
