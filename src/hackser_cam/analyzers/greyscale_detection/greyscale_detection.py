@@ -117,14 +117,15 @@ class greyscale_detector(analyzer):
         return midfuzzy
 
     def update(self):
+        plt.figure(200, figsize=(2.5,2.5))
         plt.ion()
         plt.xlim([0, 256])
-        plt.show()
         plt.clf()
 
         hist = cv.calcHist([self.lastImg], [0], None, [256], [0, 256])
 
         plt.plot(hist)
+        plt.show()
         plt.pause(0.01)
 
 
