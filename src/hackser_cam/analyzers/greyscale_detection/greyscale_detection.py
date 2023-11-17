@@ -38,14 +38,11 @@ class greyscale_detector(analyzer):
     leftestPeak = 0
     rightestPeak = 0
 
-    runCount = 0
+    lastImg = None
 
     def __init__(self, img):
-        print()
         self.generateReference(img)
-        plt.ion()
-        plt.xlim([0, 256])
-        plt.show()
+        print()
 
     def generateReference(self, img):  # Used to generate a reference value for testing
         cropped = img[100:len(img), 60:len(img[0]) - 60]
@@ -60,19 +57,16 @@ class greyscale_detector(analyzer):
         hist = cv.calcHist([greyscaleimg], [0], None, [256], [0, 256])
         peak = findPeakIndex(hist)
         self.highestPeak = peak[1]
-        self.leftestPeak = peak[0]
+        self.leftestPeak = 35
         self.lowestPeak = self.highestPeak*0.57
-        self.rightestPeak = self.leftestPeak*1.3
+        self.rightestPeak = 65
 
         self.referenceOverall = pixelSum/numPixels
         print("Set reference Overall to:", self.referenceOverall)
 
-        self.runCount += 1
-
     def run(self, img) -> float:
-        plt.clf()
-        #if self.referenceOverall == 0: self.generateReference(img); return 0.0
-        greyscaleimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        if self.referenceOverall == 0: self.generateReference(img); return 0.0
+        greyscaleimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY); self.lastImg = greyscaleimg
         numPixels = 0
         pixelSum = 0
 
@@ -94,10 +88,10 @@ class greyscale_detector(analyzer):
             if peak[1] < self.highestPeak*(1+correctionMargin):
                 self.highestPeak = peak[1]
             else: print("WRONG DATA"); return -1
-        if peak[0] > self.rightestPeak:
-            if peak[0] < self.rightestPeak*(1+correctionMargin):
-                self.rightestPeak = peak[0]
-            else: print("WRONG DATA"); return -1
+        #if peak[0] > self.rightestPeak: # Fixed rightest Peak to a set value
+        #    if peak[0] < self.rightestPeak*(1+correctionMargin):
+        #        self.rightestPeak = peak[0]
+        #    else: print("WRONG DATA"); return -1
 
         if peak[1] < self.lowestPeak:
             if peak[1] > self.lowestPeak*(1-correctionMargin):
@@ -120,12 +114,17 @@ class greyscale_detector(analyzer):
         print("high-fuzzy:",fuzzyval)
         print("side-fuzzy:",fuzzyval2)
 
-        plt.plot(hist)
-        plt.pause(0.01)
-
-        self.runCount += 1
         return midfuzzy
 
     def update(self):
-        return
+        plt.ion()
+        plt.xlim([0, 256])
+        plt.show()
+
+        hist = cv.calcHist([self.lastImg], [0], None, [256], [0, 256])
+
+        plt.plot(hist)
+        plt.pause(0.01)
+
+
 
