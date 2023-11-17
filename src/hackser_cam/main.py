@@ -92,7 +92,7 @@ def crop_image(image, cropped: str):
     return cropped_image
 
 def start_frontend():
-     app.run(debug=True, use_reloader=False, threaded=True)
+     app.run(debug=True, use_reloader=False)
 
 @click.command()
 @click.option("--analyzer", help="the analyzer to use (dev only)")
@@ -166,7 +166,6 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                     detector_fuzzies.append(fuzzy_value)
 
                     with shared_resource.data_lock:
-                        log.error(f'fuz: {fuzzy_value}')
                         shared_resource.global_fuzzies.append(fuzzy_value)
 
 
