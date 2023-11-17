@@ -142,11 +142,12 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
         #print_image_split(image_groups, bulk_image_count)
 
         detectors = [
-            greyscale_detector(initial_img),
+            #greyscale_detector(), is already in the Preprocessing
             edge_detector(initial_img),
             #color_spectrum(),
             #contrast_analyzer()
         ]
+        greysc = greyscale_detector(initial_img)
 
         for image_group in image_groups:
             fuzzies = []
@@ -157,22 +158,40 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 if cropped is not None:
                     img = crop_image(img, cropped)
 
-                # run through every registered detector
+
                 detector_fuzzies = []
-                for detector in detectors:
-                    fuzzy_value = detector.run(img)
-                    log.info(f'Fuzzy value: {fuzzy_value}')
-                    detector.update()
-                    detector_fuzzies.append(fuzzy_value)
+                #preprocessing
 
-                # calculate average value of the detectors
-                average_fuzzy = 0
-                for fuzzy in detector_fuzzies:
-                    average_fuzzy = average_fuzzy + fuzzy
+                detector_fuzzies.append(greysc.run(img))
+                greysc.update()
+
+                #in greyscale are two detectors analysing different aspects of the histogram
+                #detetor_[1] to weight these two equally in tne Average
+                detector_fuzzies.append(detector_fuzzies[0])
+                log.info(f'Fuzzy value: {detector_fuzzies[0]}')
+
+                #Pipelining the other Analysers
+                #only when no anomalies in the Picture
+                if detector_fuzzies[0] != -1:
+                    # run through every registered detector
+                    for detector in detectors:
+                        fuzzy_value = detector.run(img)
+                        log.info(f'Fuzzy value: {fuzzy_value}')
+                        detector.update()
+                        detector_fuzzies.append(fuzzy_value)
+
+                    # calculate average value of the detectors
+                    average_fuzzy = 0
+                    for fuzzy in detector_fuzzies:
+                        average_fuzzy = average_fuzzy + fuzzy
 
 
-                detector_fuzzy = average_fuzzy /len(detector_fuzzies)
-                fuzzies.append(detector_fuzzy)
+                    detector_fuzzy = average_fuzzy /len(detector_fuzzies)
+                    fuzzies.append(detector_fuzzy)
+                else:
+                    #when an anomaly is int the picture we set the fuzzy value to get filtered by the Min
+                    fuzzies.append(1.0)
+
 
                 # render preview window
                 preview = cv.resize(img, (0, 0), fx=0.5, fy=0.5)

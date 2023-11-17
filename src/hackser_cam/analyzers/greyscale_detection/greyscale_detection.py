@@ -19,8 +19,8 @@ def getPixelDistance(pix1, pix2):
 def findPeakIndex(toSearch):
     momMax = 0
     for i in range(1, len(toSearch)):
-        if toSearch[i] > toSearch[momMax]: momMax = i
-    return [momMax, toSearch[momMax]]
+        if toSearch[i][0] > toSearch[momMax][0]: momMax = i
+    return [momMax, toSearch[momMax][0]]
 
 def peakFuzzyInit(highestPeak, lowestPeak):
     m = -1/(highestPeak-lowestPeak)
@@ -121,6 +121,7 @@ class greyscale_detector(analyzer):
         plt.ion()
         plt.xlim([0, 256])
         plt.show()
+        plt.clf()
 
         hist = cv.calcHist([self.lastImg], [0], None, [256], [0, 256])
 
