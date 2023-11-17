@@ -90,6 +90,11 @@ def crop_image(image, cropped: str):
     cropped_image = image[crop_y:len(image), crop_x:len(image[0])-crop_x]
     return cropped_image
 
+def plot(toPlot):
+    plt.show
+    plt.plot(toPlot)
+    plt.pause(0.01)
+
 def start_frontend():
      app.run(debug=False, use_reloader=False)
 
@@ -104,6 +109,7 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
 
     # how many pictures are taken at once.
     bulk_image_count = 15
+    fuzzyValues = []  # All fuzzy values are stored here for plotting
     
     if not os.path.exists('./test_data/initial_image.jpg'):
         log.error('Error: initial image not found. Check readme. Stop.')
@@ -204,10 +210,12 @@ def main(analyzer: str, img_path: click.Path, cropped: str):
                 if fuzzy < min_fuzzy:
                     min_fuzzy = fuzzy
 
+            fuzzyValues.append([min_fuzzy])
             with shared_resource.data_lock:
                 shared_resource.global_fuzzies.append(min_fuzzy)
 
             log.success(f'Final fuzzy: {min_fuzzy}')
+            plot(fuzzyValues)
 
     cv.destroyAllWindows()
     flask_thread.join()
